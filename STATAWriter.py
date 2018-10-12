@@ -1,10 +1,21 @@
 import string
+import os
 
-observlen = 2
+observlen = 120000000
+splitby = 5000000
+
+iterater = int(observlen / splitby)
+
+print(iterater)
+
 column = ['1:3', '9:10', '13:13']
-mainfile = open('STATA_Load_1mil.txt', 'w')
-# merge 1:1 _n
-for x in range(0, observlen):
+
+if os.path.exists("STATA_Load.txt"):
+    os.remove("STATA_Load.txt")
+
+mainfile = open('STATA_Load.txt', 'w')
+
+for x in range(0, iterater):
     for y in column:
         templine1 = r'import delimited "\\xrdcwpappgme01\GME Research Data Repo\Division_Continental\Cornett_Brendon\Watts DVT Resubmit Labs FINAL.txt", encoding(utf8) colrange('
 
@@ -15,9 +26,9 @@ for x in range(0, observlen):
         if x == 0:
             inpoot2 = ''
         else:
-            inpoot2 = str(1 + (x * 1000000))
+            inpoot2 = str(1 + (x * splitby))
 
-        inpoot3 = str(1000000 + (x * 1000000))
+        inpoot3 = str(splitby + (x * splitby))
 
         templine3 = ') stringcols(1 2 3)'
 
@@ -27,7 +38,7 @@ for x in range(0, observlen):
 
         templine5 = r'.dta", replace'
 
-        mergeline1 = templine1 + inpoot1 + templine2 + inpoot2 + templine3
+        mergeline1 = templine1 + inpoot1 + templine2 + inpoot2 + ':' + inpoot3 + templine3
         mergeline2 = templine4 + inpoot4 + templine5
 
         mainfile.write(mergeline1)
