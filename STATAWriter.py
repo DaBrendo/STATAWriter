@@ -17,7 +17,7 @@ mainfile = open('STATA_Load.txt', 'w')
 
 for x in range(0, iterater):
     for y in column:
-        templine1 = r'import delimited "Watts DVT Resubmit Labs FINAL.txt", encoding(utf8) colrange('
+        templine1 = r'import delimited "Labs.txt", encoding(utf8) colrange('
 
         inpoot1 = y
 
