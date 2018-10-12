@@ -6,9 +6,7 @@ splitby = 5000000
 
 iterater = int(observlen / splitby)
 
-print(iterater)
-
-column = ['1:3', '9:10', '13:13']
+column = ['1:3', '9:10', '14:14']
 
 if os.path.exists('STATA_Load.txt'):
     os.remove('STATA_Load.txt')
@@ -17,7 +15,7 @@ mainfile = open('STATA_Load.txt', 'w')
 
 for x in range(0, iterater):
     for y in column:
-        templine1 = r'import delimited "Labs.txt", encoding(utf8) colrange('
+        templine1 = r'import delimited "Labs.txt", encoding(utf8) case(upper) colrange('
 
         inpoot1 = y
 
@@ -30,7 +28,7 @@ for x in range(0, iterater):
 
         inpoot3 = str(splitby + (x * splitby))
 
-        templine3 = ') stringcols(1 2 3)'
+        templine3 = ') stringcols(all)'
 
         templine4 = r'save "LAB_Split\Labs'
 
@@ -73,5 +71,11 @@ for x in range(0, iterater):
 
             mainfile.write(mergeline4 + '\r\n')
 
+    mainfile.write('gen UUID = HOSPID + PTID' + '\r\n')
+    mainfile.write('drop HOSPID' + '\r\n')
+    mainfile.write('drop PTID' + '\r\n')
+
     mainfile.write(r'save "LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
+    mainfile.write('clear')
+    mainfile.write('\r\n')
     mainfile.write('\r\n')
