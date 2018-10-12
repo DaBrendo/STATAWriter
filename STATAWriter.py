@@ -10,14 +10,14 @@ print(iterater)
 
 column = ['1:3', '9:10', '13:13']
 
-if os.path.exists("STATA_Load.txt"):
-    os.remove("STATA_Load.txt")
+if os.path.exists('STATA_Load.txt'):
+    os.remove('STATA_Load.txt')
 
 mainfile = open('STATA_Load.txt', 'w')
 
 for x in range(0, iterater):
     for y in column:
-        templine1 = r'import delimited "\\xrdcwpappgme01\GME Research Data Repo\Division_Continental\Cornett_Brendon\Watts DVT Resubmit Labs FINAL.txt", encoding(utf8) colrange('
+        templine1 = r'import delimited "Watts DVT Resubmit Labs FINAL.txt", encoding(utf8) colrange('
 
         inpoot1 = y
 
@@ -32,7 +32,7 @@ for x in range(0, iterater):
 
         templine3 = ') stringcols(1 2 3)'
 
-        templine4 = r'save "\\xrdcwpappgme01\GME Research Data Repo\Division_Continental\Cornett_Brendon\LAB_Split\Labs'
+        templine4 = r'save "LAB_Split\Labs'
 
         inpoot4 = str(x + 1) + string.ascii_uppercase[column.index(y)]
 
@@ -49,7 +49,7 @@ for x in range(0, iterater):
         mainfile.write('\r\n')
         mainfile.write('\r\n')
 
-    templine6 = 'using Labs'
+    templine6 = 'using LAB_Split\Labs'
 
     inpoot5 = str(x + 1) + 'A'
 
@@ -73,5 +73,5 @@ for x in range(0, iterater):
 
             mainfile.write(mergeline4 + '\r\n')
 
-    mainfile.write(r'save "\\xrdcwpappgme01\GME Research Data Repo\Division_Continental\Cornett_Brendon\LAB_Split\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
+    mainfile.write(r'save "LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
     mainfile.write('\r\n')
