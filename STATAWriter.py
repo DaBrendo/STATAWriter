@@ -28,9 +28,9 @@ for x in range(0, iterater):
 
         inpoot3 = str(splitby + (x * splitby))
 
-        templine3 = ') stringcols(all)'
+        templine3 = ') stringcols(_all)'
 
-        templine4 = r'save "LAB_Split\Labs'
+        templine4 = r'save ".\LAB_Split\Labs'
 
         inpoot4 = str(x + 1) + string.ascii_uppercase[column.index(y)]
 
@@ -47,7 +47,7 @@ for x in range(0, iterater):
         mainfile.write('\r\n')
         mainfile.write('\r\n')
 
-    templine6 = 'using LAB_Split\Labs'
+    templine6 = 'using .\LAB_Split\Labs'
 
     inpoot5 = str(x + 1) + 'A'
 
@@ -75,7 +75,7 @@ for x in range(0, iterater):
     mainfile.write('drop HOSPID' + '\r\n')
     mainfile.write('drop PTID' + '\r\n')
 
-    mainfile.write(r'save "LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
+    mainfile.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
     mainfile.write('clear')
     mainfile.write('\r\n')
     mainfile.write('\r\n')
