@@ -42,13 +42,19 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('use .\LAB_Split\Labs' + str(x + 1) + 'A' + '.dta' + '\r\n')
         for y in argcolumn:
             if argcolumn.index(y) > 0:
-                outpit.write('merge 1:1 _n using Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + '.dta, nogenerate')
+                outpit.write('merge 1:1 _n using .\Lab_Split\Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + '.dta, nogenerate')
                 outpit.write('\r\n')
 
         outpit.write('gen UUID = HOSPID + PTID' + '\r\n')
         outpit.write('drop HOSPID' + '\r\n')
         outpit.write('drop PTID' + '\r\n')
         outpit.write('order UUID' + '\r\n')
+        outpit.write('destring RESULT_ANSWER_TEXT, generate(RESULTS_NUM) force' + '\r\n')
+        outpit.write('generate str RESULTS_STR = RESULT_ANSWER_TEXT if RESULTS_NUM ==.' + '\r\n')
+        outpit.write('drop RESULT_ANSWER_TEXT' + '\r\n')
+        outpit.write('order RESULTS_STR, after RESULTS_NUM' + '\r\n')
+        outpit.write('replace LOINC_CODE = "" if LOINC_CODE == "?"' + '\r\n')
+        outpit.write('rename PROC_NAME PROCEDURE' + '\r\n')
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear')
         outpit.write('\r\n')
@@ -59,4 +65,4 @@ observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
 
-labs('STATA_Load.txt', observlen, 5000000, column)
+labs('STATA_Load.do', observlen, 5000000, column)
