@@ -13,9 +13,12 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
             templine1 = r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange('
 
             templine2 = ') rowrange('
-
-            inpoot1 = str(x * argsplitlen)
-            inpoot2 = str(1 + ((x + 1) * argsplitlen))
+            if x == 0:
+                inpoot1 = ''
+                inpoot2 = str(((x + 1) * argsplitlen))
+            else:
+                inpoot1 = str(x + (x * argsplitlen))
+                inpoot2 = str(x + ((x + 1) * argsplitlen))
 
             templine3 = ') stringcols(_all)'
 
@@ -36,10 +39,10 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
             outpit.write('\r\n')
             outpit.write('\r\n')
 
-        outpit.write('use .\LAB_Split\Labs' + str(x + 1) + 'A' + '.dta, nogenerate' + '\r\n')
+        outpit.write('use .\LAB_Split\Labs' + str(x + 1) + 'A' + '.dta' + '\r\n')
         for y in argcolumn:
             if argcolumn.index(y) > 0:
-                outpit.write('merge 1:1 _n using Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + '.dta')
+                outpit.write('merge 1:1 _n using Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + '.dta, nogenerate')
                 outpit.write('\r\n')
 
         outpit.write('gen UUID = HOSPID + PTID' + '\r\n')
@@ -53,7 +56,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
 
 
 observlen = 18000000
-column = ['1:3', '9:10', '13:13']
+column = ['1:3', '9:10', '14:14']
 
 
-labs('STATA_Load.txt', observlen, 1000000, column)
+labs('STATA_Load.txt', observlen, 5000000, column)
