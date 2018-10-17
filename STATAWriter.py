@@ -2,6 +2,17 @@ import string
 import os
 import math
 
+# def blocks(files, size=65536):
+#    while True:
+#        b = files.read(size)
+#        if not b:
+#            break
+#        yield b
+#
+#
+# with open("file", "r", encoding="utf-8", errors='ignore') as f:
+#    print(sum(bl.count(r'\n') for bl in blocks(f)))
+
 
 def labs(argfile, argobslen, argsplitlen, argcolumn):
     looplen = int(math.ceil(argobslen / argsplitlen))
