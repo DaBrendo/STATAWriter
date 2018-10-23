@@ -1,6 +1,7 @@
 import string
 import os
 import math
+import csv
 
 # def blocks(files, size=65536):
 #    while True:
@@ -57,9 +58,8 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                     argcolumn.index(y)] + '.dta, nogenerate')
                 outpit.write('\r\n')
 
-        outpit.write('gen UUID = HOSPID + PTID' + '\r\n')
-        outpit.write('drop HOSPID' + '\r\n')
-        outpit.write('drop PTID' + '\r\n')
+        outpit.write('gen UUID = HOSPID + PTID + ADMTID' + '\r\n')
+        outpit.write('drop HOSPID PTID ADMTID' + '\r\n')
         outpit.write('order UUID' + '\r\n')
         outpit.write('destring RESULT_ANSWER_TEXT, generate(RESULTS_NUM) force' + '\r\n')
         outpit.write('generate str RESULTS_STR = RESULT_ANSWER_TEXT if RESULTS_NUM ==.' + '\r\n')
@@ -78,10 +78,9 @@ def bmi(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(r'import delimited ".\BMI.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write('gen UUID = HOSPID + PTID' + '\r\n')
+    outpit.write('gen UUID = HOSPID + PTID + ADMTID' + '\r\n')
     outpit.write('order UUID' + '\r\n')
-    outpit.write('drop HOSPID' + '\r\n')
-    outpit.write('drop PTID' + '\r\n')
+    outpit.write('drop HOSPID PTID ADMTID' + '\r\n')
     outpit.write('rename HEIGHT_CENTIMETERS HEIGHT' + '\r\n')
     outpit.write('rename WEIGHT_KILOGRAMS WEIGHT' + '\r\n')
     outpit.write('rename CALCULATED_BMI BMI' + '\r\n')
@@ -98,8 +97,7 @@ def demographic(argfile):
     outpit.write(
         r'import delimited ".\Demographics.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'gen UUID = HOSPID + PTID' + '\r\n')
-    outpit.write(r'drop HOSPID' + '\r\n')
-    outpit.write(r'drop PTID' + '\r\n')
+    outpit.write(r'drop HOSPID PTID' + '\r\n')
     outpit.write(r'order UUID' + '\r\n')
     outpit.write(r'drop ETHNICITY' + '\r\n')
     outpit.write(r'replace RACE1 = upper(RACE1)' + '\r\n')
@@ -158,6 +156,31 @@ def demographic(argfile):
     outpit.write('\r\n')
 
 
+def diagnoses(argfile):
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write(
+        r'import delimited ".\Diagnoses.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+    outpit.write(r'gen UUID = HOSPID + PTID + ADMTID' + '\r\n')
+    outpit.write(r'drop HOSPID PTID ADMTID DX DX_CODETYPE ORIGDX' + '\r\n')
+    outpit.write(r'order UUID' + '\r\n')
+    outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
+    outpit.write(r'gen DIAGCAT = ""' + '\r\n')
+    for file in os.listdir((os.curdir + r'/Diagnoses')):
+        filename = os.fsdecode(file)
+        if filename.endswith(".csv"):
+            with open((os.curdir + r'/Diagnoses' + r'/' + filename), 'r') as csv_file:
+                readin = list(csv.reader(csv_file, delimiter=','))
+            diaglist = [item for sublist in readin for item in sublist]
+            diaglist = [x.upper() for x in diaglist]
+            for x in diaglist:
+                if diaglist.index(x) > 0:
+                    outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
+    outpit.write('save ".\Imported\Diagnoses.dta", replace')
+    outpit.write('\r\n')
+
+
 observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
@@ -166,3 +189,6 @@ labs('LabLoad.do', observlen, 5000000, column)
 bmi('BMILoad.do')
 
 demographic('DemographicLoad.do')
+
+diagnoses('DiagnosticLoad.do')
+
