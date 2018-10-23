@@ -70,7 +70,6 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear')
         outpit.write('\r\n')
-        outpit.write('\r\n')
 
 
 def bmi(argfile):
@@ -88,6 +87,9 @@ def bmi(argfile):
     outpit.write('destring WEIGHT, replace' + '\r\n')
     outpit.write('destring BMI, replace' + '\r\n')
     outpit.write(r'save ".\Imported\BMI.dta", replace')
+    outpit.write('\r\n')
+    outpit.write('clear')
+    outpit.write('\r\n')
 
 
 def demographic(argfile):
@@ -105,54 +107,24 @@ def demographic(argfile):
     outpit.write(r'gen str RACE1FIX = ""' + '\r\n')
     outpit.write(r'gen str RACE2FIX = ""' + '\r\n')
     outpit.write(r'gen str RACE = ""' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "ASIAN" if RACE1 == "A" | RACE1 == "AS" | RACE1 == "ASIAN" | RACE1 == "OR" | RACE1 == "ASIA"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "AMIN" if RACE1 == "AI" | RACE1 == "INDI" | RACE1 == "AMIN" | RACE1 == "I"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "BLACK" if RACE1 == "B" | RACE1 == "AA" | RACE1 == "AF" | RACE1 == "AFRO" | RACE1 == "BL" | RACE1 == "BLAC" | RACE1 == "BLACK"' + '\r\n')
-    outpit.write(r'replace RACE1FIX = "HAWAII" if RACE1 == "HAWAIIAN"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "OTHER" if RACE1 == "N" | RACE1 == "O" | RACE1 == "OT" | RACE1 == "OTH" | RACE1 == "OTHER"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "HISPANIC" if RACE1 == "H" | RACE1 == "HI" | RACE1 == "HIS" | RACE1 == "HISP" | RACE1 == "LA" | RACE1 == "HW" | RACE1 == "HB"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "OTHER" if RACE1 == "U" | RACE1 == "UN" | RACE1 == "UNK" | RACE1 == "UNKN"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "WHITE" if RACE1 == "WHITE" | RACE1 == "C" | RACE1 == "CA" | RACE1 == "CAUC" | RACE1 == "W" | RACE1 == "WH" | RACE1 == "WHI"' + '\r\n')
-    outpit.write(
-        r'replace RACE1FIX = "MULTI" if RACE1 == "M" | RACE1 == "MR" | RACE1 == "MU" | RACE1 == "MUL"| RACE1 == "MULT"' + '\r\n')
-    outpit.write(r'drop RACE1' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "ASIAN" if RACE2 == "A" | RACE1 == "AS" | RACE1 == "ASIAN" | RACE1 == "OR" | RACE1 == "ASIA"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "AMIN" if RACE2 == "AI" | RACE1 == "INDI" | RACE1 == "AMIN" | RACE1 == "I"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "BLACK" if RACE2 == "B" | RACE1 == "AA" | RACE1 == "AF" | RACE1 == "AFRO" | RACE1 == "BL" | RACE1 == "BLAC" | RACE1 == "BLACK"' + '\r\n')
-    outpit.write(r'replace RACE2FIX = "HAWAII" if RACE2 == "HAWAIIAN"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "OTHER" if RACE2 == "N" | RACE1 == "O" | RACE1 == "OT" | RACE1 == "OTH" | RACE1 == "OTHER"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "HISPANIC" if RACE2 == "H" | RACE1 == "HI" | RACE1 == "HIS" | RACE1 == "HISP" | RACE1 == "LA" | RACE1 == "HW" | RACE1 == "HB"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "OTHER" if RACE2 == "U" | RACE1 == "UN" | RACE1 == "UNK" | RACE1 == "UNKN"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "WHITE" if RACE2 == "WHITE" | RACE1 == "C" | RACE1 == "CA" | RACE1 == "CAUC" | RACE1 == "W" | RACE1 == "WH" | RACE1 == "WHI"' + '\r\n')
-    outpit.write(
-        r'replace RACE2FIX = "MULTI" if RACE2 == "M" | RACE1 == "MR" | RACE1 == "MU" | RACE1 == "MUL"| RACE1 == "MULT"' + '\r\n')
-    outpit.write(r'drop RACE2' + '\r\n')
-    outpit.write(r'replace RACE = "ASIAN" if RACE1FIX == "ASIAN" & RACE2FIX == "ASIAN"' + '\r\n')
-    outpit.write(r'replace RACE = "AMIN" if RACE1FIX == "AMIN" & RACE2FIX == "AMIN"' + '\r\n')
-    outpit.write(r'replace RACE = "BLACK" if RACE1FIX == "BLACK" & RACE2FIX == "BLACK"' + '\r\n')
-    outpit.write(r'replace RACE = "HAWAII" if RACE1FIX == "HAWAII" & RACE2FIX == "HAWAII"' + '\r\n')
-    outpit.write(r'replace RACE = "OTHER" if RACE1FIX == "OTHER" & RACE2FIX == "OTHER"' + '\r\n')
-    outpit.write(r'replace RACE = "HISPANIC" if RACE1FIX == "HISPANIC" & RACE2FIX == "HISPANIC"' + '\r\n')
-    outpit.write(r'replace RACE = "WHITE" if RACE1FIX == "WHITE" & RACE2FIX == "WHITE"' + '\r\n')
-    outpit.write(r'replace RACE = "MULTI" if RACE1FIX == "MULTI" & RACE2FIX == "MULTI"' + '\r\n')
-    outpit.write(r'replace RACE = "MULTI" if RACE == ""' + '\r\n')
+    for file in os.listdir((os.curdir + r'/Race')):
+        filename = os.fsdecode(file)
+        if filename.endswith(".csv"):
+            with open((os.curdir + r'/Race' + r'/' + filename), 'r') as csv_file:
+                readin = list(csv.reader(csv_file, delimiter=','))
+            racelist = [item for sublist in readin for item in sublist]
+            racelist = [x.upper() for x in racelist]
+            for x in racelist:
+                if racelist.index(x) > 0:
+                    outpit.write(r'replace RACE1FIX = "' + racelist[0] + r'" ' + 'if RACE1 == "' + x + r'"' + '\r\n')
+                    outpit.write(r'replace RACE2FIX = "' + racelist[0] + r'" ' + 'if RACE2 == "' + x + r'"' + '\r\n')
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2FIX == "' + racelist[0] + '"' + '\r\n')
+    outpit.write(r'replace RACE = "MULTIRACIAL" if RACE == ""' + '\r\n')
     outpit.write(r'drop RACE1FIX' + '\r\n')
     outpit.write(r'drop RACE2FIX' + '\r\n')
     outpit.write('save ".\Imported\Demographics.dta", replace')
+    outpit.write('\r\n')
+    outpit.write('clear')
     outpit.write('\r\n')
 
 
@@ -177,18 +149,30 @@ def diagnoses(argfile):
             for x in diaglist:
                 if diaglist.index(x) > 0:
                     outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
     outpit.write('save ".\Imported\Diagnoses.dta", replace')
+    outpit.write('\r\n')
+    outpit.write('clear')
+    outpit.write('\r\n')
+
+
+def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, mainfile):
+    labs(labfile, lablength, labsplitlen, labcolumn)
+    bmi(bmifile)
+    demographic(demographicfile)
+    diagnoses(diagnosesfile)
+    if os.path.exists(mainfile):
+        os.remove(mainfile)
+    outpit = open(mainfile, 'w')
+    outpit.write('do ' + labfile + '\r\n')
+    outpit.write('do ' + bmifile + '\r\n')
+    outpit.write('do ' + demographicfile + '\r\n')
+    outpit.write('do ' + diagnosesfile + '\r\n')
+    outpit.write('clear')
     outpit.write('\r\n')
 
 
 observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
-labs('LabLoad.do', observlen, 5000000, column)
-
-bmi('BMILoad.do')
-
-demographic('DemographicLoad.do')
-
-diagnoses('DiagnosticLoad.do')
-
+mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'MainLoad.do')
