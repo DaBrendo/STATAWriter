@@ -119,8 +119,10 @@ def demographic(argfile):
                     outpit.write(r'replace RACE1FIX = "' + racelist[0] + r'" ' + 'if RACE1 == "' + x + r'"' + '\r\n')
                     outpit.write(r'replace RACE2FIX = "' + racelist[0] + r'" ' + 'if RACE2 == "' + x + r'"' + '\r\n')
             outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2FIX == "' + racelist[0] + '"' + '\r\n')
-            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1 == "' + r'"?"' + r'" & RACE2FIX == "' +racelist[0] + '"' + '\r\n')
-            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2 == "' + r'"?"' + '"' + '\r\n')
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1 == "' + r'?' + r'" & RACE2FIX == "' + racelist[0] + '"' + '\r\n')
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2 == "' + r'?' + '"' + '\r\n')
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1 == "' + r'" & RACE2FIX == "' + racelist[0] + '"' + '\r\n')
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2 == "' + '"' + '\r\n')
     outpit.write(r'replace RACE = "MULTIRACIAL" if RACE == ""' + '\r\n')
     outpit.write(r'drop RACE1FIX' + '\r\n')
     outpit.write(r'drop RACE2FIX' + '\r\n')
@@ -160,6 +162,33 @@ def diagnoses(argfile):
     outpit.write('clear')
     outpit.write('\r\n')
 
+
+def pharma(argfile):
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write(
+        r'import delimited ".\Pharmacy.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+    outpit.write(r'gen UUID = HOSPID + PTID' + '\r\n')
+    outpit.write(r'drop HOSPID PTID DX DX_CODETYPE ORIGDX' + '\r\n')
+    outpit.write(r'order UUID' + '\r\n')
+    outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
+    outpit.write(r'gen DIAGCAT = ""' + '\r\n')
+    for file in os.listdir((os.curdir + r'/Diagnoses')):
+        filename = os.fsdecode(file)
+        if filename.endswith(".csv"):
+            with open((os.curdir + r'/Diagnoses' + r'/' + filename), 'r') as csv_file:
+                readin = list(csv.reader(csv_file, delimiter=','))
+            diaglist = [item for sublist in readin for item in sublist]
+            diaglist = [x.upper() for x in diaglist]
+            for x in diaglist:
+                if diaglist.index(x) > 0:
+                    outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
+    outpit.write('save ".\Imported\Diagnoses.dta", replace')
+    outpit.write('\r\n')
+    outpit.write('clear')
+    outpit.write('\r\n')
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
