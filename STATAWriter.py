@@ -135,7 +135,7 @@ def demographic(argfile):
     outpit.write('\r\n')
 
 
-def diagnoses(argfile):
+def diagnosis(argfile):
     if os.path.exists(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
@@ -162,7 +162,7 @@ def diagnoses(argfile):
     outpit.write('\r\n')
 
 
-def pharma(argfile):
+def pharmacy(argfile):
     if os.path.exists(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
@@ -189,12 +189,27 @@ def pharma(argfile):
     outpit.write('\r\n')
 
 
-def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, mainfile):
+def procedure(argfile):
+    print(argfile)
+
+
+def readmit(argfile):
+    print(argfile)
+
+
+def encounter(argfile):
+    print(argfile)
+
+
+def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
     bmi(bmifile)
     demographic(demographicfile)
-    diagnoses(diagnosesfile)
-    pharma(pharmfile)
+    diagnosis(diagnosesfile)
+    pharmacy(pharmfile)
+    procedure(procedfile)
+    readmit(readmitfile)
+    encounter(encounterfile)
     if os.path.exists(mainfile):
         os.remove(mainfile)
     outpit = open(mainfile, 'w')
@@ -209,4 +224,4 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
 observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
-mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'PharmaLoad.do', 'MainLoad.do')
+mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterFile.do', 'MainLoad.do')
