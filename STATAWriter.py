@@ -154,8 +154,7 @@ def diagnoses(argfile):
             diaglist = [item for sublist in readin for item in sublist]
             diaglist = [x.upper() for x in diaglist]
             for x in diaglist:
-                if diaglist.index(x) > 0:
-                    outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
+                outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
     outpit.write('save ".\Imported\Diagnoses.dta", replace')
     outpit.write('\r\n')
@@ -170,31 +169,32 @@ def pharma(argfile):
     outpit.write(
         r'import delimited ".\Pharmacy.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'gen UUID = HOSPID + PTID' + '\r\n')
-    outpit.write(r'drop HOSPID PTID DX DX_CODETYPE ORIGDX' + '\r\n')
+    outpit.write(r'drop HOSPID PTID ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
     outpit.write(r'order UUID' + '\r\n')
-    outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
-    outpit.write(r'gen DIAGCAT = ""' + '\r\n')
-    for file in os.listdir((os.curdir + r'/Diagnoses')):
+    outpit.write(r'replace MED = upper(MED)' + '\r\n')
+    outpit.write(r'gen MEDCAT = ""' + '\r\n')
+    for file in os.listdir((os.curdir + r'/Pharma')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
-            with open((os.curdir + r'/Diagnoses' + r'/' + filename), 'r') as csv_file:
+            with open((os.curdir + r'/Pharma' + r'/' + filename), 'r') as csv_file:
                 readin = list(csv.reader(csv_file, delimiter=','))
-            diaglist = [item for sublist in readin for item in sublist]
-            diaglist = [x.upper() for x in diaglist]
-            for x in diaglist:
-                if diaglist.index(x) > 0:
-                    outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
-    outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
-    outpit.write('save ".\Imported\Diagnoses.dta", replace')
+            medlist = [item for sublist in readin for item in sublist]
+            medlist = [x.upper() for x in medlist]
+            for x in medlist:
+                outpit.write(r'replace MEDCAT = "' + medlist[0] + r'" ' + 'if MED == "' + x + r'"' + '\r\n')
+    outpit.write(r'drop if MEDCAT == ""' + '\r\n')
+    outpit.write('save ".\Imported\Pharmacy.dta", replace')
     outpit.write('\r\n')
     outpit.write('clear')
     outpit.write('\r\n')
 
-def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, mainfile):
+
+def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
     bmi(bmifile)
     demographic(demographicfile)
     diagnoses(diagnosesfile)
+    pharma(pharmfile)
     if os.path.exists(mainfile):
         os.remove(mainfile)
     outpit = open(mainfile, 'w')
@@ -209,4 +209,4 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
 observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
-mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'MainLoad.do')
+mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'PharmaLoad.do', 'MainLoad.do')
