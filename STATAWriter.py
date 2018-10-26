@@ -2,7 +2,12 @@ import string
 import os
 import math
 import csv
+import pathlib
 
+# def is_valid_directory(filename):
+#    p = pathlib.Path(filename)
+#    return p.exists() and p.is_dir()
+#
 # def blocks(files, size=65536):
 #    while True:
 #        b = files.read(size)
@@ -22,45 +27,22 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
     outpit = open(argfile, 'w')
     for x in range(0, looplen):
         for y in argcolumn:
-            templine1 = r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange('
-
-            templine2 = ') rowrange('
             if x == 0:
-                inpoot1 = ''
-                inpoot2 = str(((x + 1) * argsplitlen))
+                outpit.write(
+                    r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + '' + ':' + str(((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
             else:
-                inpoot1 = str(x + (x * argsplitlen))
-                inpoot2 = str(x + ((x + 1) * argsplitlen))
-
-            templine3 = ') stringcols(_all)'
-
-            templine4 = r'save ".\LAB_Split\Labs'
-
-            inpoot4 = str(x + 1) + string.ascii_uppercase[argcolumn.index(y)]
-
-            templine5 = r'.dta", replace'
-
-            mergeline1 = templine1 + y + templine2 + inpoot1 + ':' + inpoot2 + templine3
-            mergeline2 = templine4 + inpoot4 + templine5
-
-            outpit.write(mergeline1)
-            outpit.write('\r\n')
-            outpit.write(mergeline2)
-            outpit.write('\r\n')
+                outpit.write(
+                    r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + str(x + (x * argsplitlen)) + ':' + str(x + ((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
+            outpit.write(r'save ".\LAB_Split\Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + r'.dta", replace' + '\r\n')
             outpit.write('clear')
             outpit.write('\r\n')
-            outpit.write('\r\n')
-
         outpit.write('use .\LAB_Split\Labs' + str(x + 1) + 'A' + '.dta' + '\r\n')
         for y in argcolumn:
             if argcolumn.index(y) > 0:
                 outpit.write('merge 1:1 _n using .\Lab_Split\Labs' + str(x + 1) + string.ascii_uppercase[
                     argcolumn.index(y)] + '.dta, nogenerate')
                 outpit.write('\r\n')
-
-        outpit.write('gen UUID = HOSPID + PTID' + '\r\n')
-        outpit.write('drop HOSPID PTID' + '\r\n')
-        outpit.write('order UUID' + '\r\n')
+        outpit.write(r'recode * ("?"="")' + '\r\n')
         outpit.write('destring RESULT_ANSWER_TEXT, generate(RESULTS_NUM) force' + '\r\n')
         outpit.write('generate str RESULTS_STR = RESULT_ANSWER_TEXT if RESULTS_NUM ==.' + '\r\n')
         outpit.write('drop RESULT_ANSWER_TEXT' + '\r\n')
@@ -68,8 +50,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('replace LOINC_CODE = "" if LOINC_CODE == "?"' + '\r\n')
         outpit.write('rename PROC_NAME PROCEDURE' + '\r\n')
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
-        outpit.write('clear')
-        outpit.write('\r\n')
+        outpit.write('clear' + '\r\n')
 
 
 def bmi(argfile):
@@ -77,31 +58,25 @@ def bmi(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(r'import delimited ".\BMI.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write('gen UUID = HOSPID + PTID' + '\r\n')
-    outpit.write('order UUID' + '\r\n')
-    outpit.write('drop HOSPID PTID' + '\r\n')
-    outpit.write('drop HEIGHT_CENTIMETERS' + '\r\n')
+    outpit.write(r'recode * ("?"="")' + '\r\n')
+    outpit.write('rename HEIGHT_CENTIMETERS HEIGHT' + '\r\n')
     outpit.write('rename WEIGHT_KILOGRAMS WEIGHT' + '\r\n')
     outpit.write('rename CALCULATED_BMI BMI' + '\r\n')
     outpit.write('destring WEIGHT, replace' + '\r\n')
     outpit.write('destring BMI, replace' + '\r\n')
-    outpit.write(r'save ".\Imported\BMI.dta", replace')
-    outpit.write('\r\n')
-    outpit.write('clear')
-    outpit.write('\r\n')
+    outpit.write(r'save ".\Imported\BMI.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
 
 
 def demographic(argfile):
     if os.path.exists(argfile):
-        os.remove(argfile)
+            os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
         r'import delimited ".\Demographics.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write(r'gen UUID = HOSPID + PTID' + '\r\n')
-    outpit.write(r'drop HOSPID PTID' + '\r\n')
-    outpit.write(r'order UUID' + '\r\n')
     outpit.write(r'rename ESRI_GROUP ESRI' + '\r\n')
     outpit.write(r'drop ETHNICITY' + '\r\n')
+    outpit.write(r'recode * ("?"="")' + '\r\n')
     outpit.write(r'replace RACE1 = upper(RACE1)' + '\r\n')
     outpit.write(r'replace RACE2 = upper(RACE2)' + '\r\n')
     outpit.write(r'gen str RACE1FIX = ""' + '\r\n')
@@ -128,11 +103,9 @@ def demographic(argfile):
     outpit.write(r'drop RACE2FIX' + '\r\n')
     outpit.write(r'drop RACE1' + '\r\n')
     outpit.write(r'drop RACE2' + '\r\n')
-    outpit.write(r'drop if ESRI == "?"' + '\r\n')
-    outpit.write('save ".\Imported\Demographics.dta", replace')
-    outpit.write('\r\n')
-    outpit.write('clear')
-    outpit.write('\r\n')
+    outpit.write(r'drop if ESRI == ""' + '\r\n')
+    outpit.write('save ".\Imported\Demographics.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
 
 
 def diagnosis(argfile):
@@ -141,9 +114,7 @@ def diagnosis(argfile):
     outpit = open(argfile, 'w')
     outpit.write(
         r'import delimited ".\Diagnoses.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write(r'gen UUID = HOSPID + PTID' + '\r\n')
-    outpit.write(r'drop HOSPID PTID DX DX_CODETYPE ORIGDX' + '\r\n')
-    outpit.write(r'order UUID' + '\r\n')
+    outpit.write(r'drop DX DX_CODETYPE ORIGDX' + '\r\n')
     outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
     outpit.write(r'gen DIAGCAT = ""' + '\r\n')
     for file in os.listdir((os.curdir + r'/Diagnoses')):
@@ -156,10 +127,8 @@ def diagnosis(argfile):
             for x in diaglist:
                 outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
-    outpit.write('save ".\Imported\Diagnoses.dta", replace')
-    outpit.write('\r\n')
-    outpit.write('clear')
-    outpit.write('\r\n')
+    outpit.write('save ".\Imported\Diagnoses.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
 
 
 def pharmacy(argfile):
@@ -168,9 +137,7 @@ def pharmacy(argfile):
     outpit = open(argfile, 'w')
     outpit.write(
         r'import delimited ".\Pharmacy.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write(r'gen UUID = HOSPID + PTID' + '\r\n')
-    outpit.write(r'drop HOSPID PTID ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
-    outpit.write(r'order UUID' + '\r\n')
+    outpit.write(r'drop ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
     outpit.write(r'replace MED = upper(MED)' + '\r\n')
     outpit.write(r'gen MEDCAT = ""' + '\r\n')
     for file in os.listdir((os.curdir + r'/Pharma')):
@@ -183,30 +150,51 @@ def pharmacy(argfile):
             for x in medlist:
                 outpit.write(r'replace MEDCAT = "' + medlist[0] + r'" ' + 'if MED == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if MEDCAT == ""' + '\r\n')
-    outpit.write('save ".\Imported\Pharmacy.dta", replace')
-    outpit.write('\r\n')
-    outpit.write('clear')
-    outpit.write('\r\n')
+    outpit.write('save ".\Imported\Pharmacy.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
 
 
 def procedure(argfile):
-    print(argfile)
-
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write(
+        r'import delimited ".\Procedures.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
 
 def readmit(argfile):
-    print(argfile)
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write(
+        r'import delimited ".\Readmit.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
 
 
 def encounter(argfile):
-    print(argfile)
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write(
+        r'import delimited ".\Encounters.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
 
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
     bmi(bmifile)
-    demographic(demographicfile)
-    diagnosis(diagnosesfile)
-    pharmacy(pharmfile)
+    if pathlib.Path('./RACE').exists():
+        demographic(demographicfile)
+    else:
+        os.mkdir('./RACE')
+        demographic(demographicfile)
+    if pathlib.Path('./DIAGNOSIS').exists():
+        diagnosis(diagnosesfile)
+    else:
+        os.mkdir('./DIAGNOSIS')
+        diagnosis(diagnosesfile)
+    if pathlib.Path('./PHARMA').exists():
+        pharmacy(pharmfile)
+    else:
+        os.mkdir('./PHARMA')
+        pharmacy(pharmfile)
     procedure(procedfile)
     readmit(readmitfile)
     encounter(encounterfile)
