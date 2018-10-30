@@ -82,7 +82,7 @@ def demographic(argfile):
     outpit.write(r'gen str RACE1FIX = ""' + '\r\n')
     outpit.write(r'gen str RACE2FIX = ""' + '\r\n')
     outpit.write(r'gen str RACE = ""' + '\r\n')
-    for file in os.listdir((os.curdir + r'/Race')):
+    for file in os.listdir((os.curdir + r'/RACE')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
             with open((os.curdir + r'/Race' + r'/' + filename), 'r') as csv_file:
@@ -117,7 +117,7 @@ def diagnosis(argfile):
     outpit.write(r'drop DX DX_CODETYPE ORIGDX' + '\r\n')
     outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
     outpit.write(r'gen DIAGCAT = ""' + '\r\n')
-    for file in os.listdir((os.curdir + r'/Diagnoses')):
+    for file in os.listdir((os.curdir + r'/DIAGNOSES')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
             with open((os.curdir + r'/Diagnoses' + r'/' + filename), 'r') as csv_file:
@@ -143,7 +143,7 @@ def pharmacy(argfile):
     for file in os.listdir((os.curdir + r'/Pharma')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
-            with open((os.curdir + r'/Pharma' + r'/' + filename), 'r') as csv_file:
+            with open((os.curdir + r'/PHARMA' + r'/' + filename), 'r') as csv_file:
                 readin = list(csv.reader(csv_file, delimiter=','))
             medlist = [item for sublist in readin for item in sublist]
             medlist = [x.upper() for x in medlist]
@@ -160,6 +160,22 @@ def procedure(argfile):
     outpit = open(argfile, 'w')
     outpit.write(
         r'import delimited ".\Procedures.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+    outpit.write(r'drop REL_SERVICE_DAY ORIGPX PX' + '\r\n')
+    outpit.write(r'replace PX_DESC = upper(PX_DESC)' + '\r\n')
+    outpit.write(r'gen PROCAT = ""' + '\r\n')
+    for file in os.listdir((os.curdir + r'/PROCEDURES')):
+        filename = os.fsdecode(file)
+        if filename.endswith(".csv"):
+            with open((os.curdir + r'/PROCEDURES' + r'/' + filename), 'r') as csv_file:
+                readin = list(csv.reader(csv_file, delimiter=','))
+            proclist = [item for sublist in readin for item in sublist]
+            proclist = [x.upper() for x in proclist]
+            for x in proclist:
+                outpit.write(r'replace PROCAT = "' + proclist[0] + r'" ' + 'if PX_DESC == "' + x + r'"' + '\r\n')
+    outpit.write(r'drop if PROCAT == ""' + '\r\n')
+    outpit.write('save ".\Imported\Procedures.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
+
 
 def readmit(argfile):
     if os.path.exists(argfile):
@@ -194,6 +210,11 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
         pharmacy(pharmfile)
     else:
         os.mkdir('./PHARMA')
+        pharmacy(pharmfile)
+    if pathlib.Path('./PROCEDURES').exists():
+        pharmacy(pharmfile)
+    else:
+        os.mkdir('./PROCEDURES')
         pharmacy(pharmfile)
     procedure(procedfile)
     readmit(readmitfile)
