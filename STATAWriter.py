@@ -49,6 +49,18 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('order RESULTS_STR, after(RESULTS_NUM)' + '\r\n')
         outpit.write('replace LOINC_CODE = "" if LOINC_CODE == "?"' + '\r\n')
         outpit.write('rename PROC_NAME PROCEDURE' + '\r\n')
+        outpit.write(r'gen LABCAT = ""' + '\r\n')
+        outpit.write(r'replace PROCEDURE = upper(PROCEDURE)' + '\r\n')
+        for file in os.listdir((os.curdir + r'/LABS')):
+            filename = os.fsdecode(file)
+            if filename.endswith(".csv"):
+                with open((os.curdir + r'/LABS' + r'/' + filename), 'r') as csv_file:
+                    readin = list(csv.reader(csv_file, delimiter=','))
+                lablist = [item for sublist in readin for item in sublist]
+                lablist = [x.upper() for x in lablist]
+                for z in lablist:
+                    outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if PROCEDURE == "' + z + r'"' + '\r\n')
+        outpit.write(r'drop if LABCAT == ""' + '\r\n')
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
 
