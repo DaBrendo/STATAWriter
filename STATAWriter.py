@@ -42,7 +42,6 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                 outpit.write('merge 1:1 _n using .\Lab_Split\Labs' + str(x + 1) + string.ascii_uppercase[
                     argcolumn.index(y)] + '.dta, nogenerate')
                 outpit.write('\r\n')
-        outpit.write(r'recode * ("?"="")' + '\r\n')
         outpit.write('destring RESULT_ANSWER_TEXT, generate(RESULTS_NUM) force' + '\r\n')
         outpit.write('generate str RESULTS_STR = RESULT_ANSWER_TEXT if RESULTS_NUM ==.' + '\r\n')
         outpit.write('drop RESULT_ANSWER_TEXT' + '\r\n')
@@ -59,8 +58,9 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                 lablist = [item for sublist in readin for item in sublist]
                 lablist = [x.upper() for x in lablist]
                 for z in lablist:
-                    outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if PROCEDURE == "' + z + r'"' + '\r\n')
+                    outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if strpos(PROCEDURE, ' + '"' + z + r'")' + '\r\n')
         outpit.write(r'drop if LABCAT == ""' + '\r\n')
+        outpit.write('duplicates drop' + '\r\n')
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
 
@@ -70,12 +70,12 @@ def bmi(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(r'import delimited ".\BMI.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write(r'recode * ("?"="")' + '\r\n')
     outpit.write('rename HEIGHT_CENTIMETERS HEIGHT' + '\r\n')
     outpit.write('rename WEIGHT_KILOGRAMS WEIGHT' + '\r\n')
     outpit.write('rename CALCULATED_BMI BMI' + '\r\n')
     outpit.write('destring WEIGHT, replace' + '\r\n')
     outpit.write('destring BMI, replace' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
     outpit.write(r'save ".\Imported\BMI.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -88,7 +88,6 @@ def demographic(argfile):
         r'import delimited ".\Demographics.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'rename ESRI_GROUP ESRI' + '\r\n')
     outpit.write(r'drop ETHNICITY' + '\r\n')
-    outpit.write(r'recode * ("?"="")' + '\r\n')
     outpit.write(r'replace RACE1 = upper(RACE1)' + '\r\n')
     outpit.write(r'replace RACE2 = upper(RACE2)' + '\r\n')
     outpit.write(r'gen str RACE1FIX = ""' + '\r\n')
@@ -116,6 +115,8 @@ def demographic(argfile):
     outpit.write(r'drop RACE1' + '\r\n')
     outpit.write(r'drop RACE2' + '\r\n')
     outpit.write(r'drop if ESRI == ""' + '\r\n')
+    outpit.write(r'drop if ESRI == "?"' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Demographics.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -139,6 +140,7 @@ def diagnosis(argfile):
             for x in diaglist:
                 outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Diagnoses.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -162,6 +164,7 @@ def pharmacy(argfile):
             for x in medlist:
                 outpit.write(r'replace MEDCAT = "' + medlist[0] + r'" ' + 'if MED == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if MEDCAT == ""' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Pharmacy.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -185,6 +188,7 @@ def procedure(argfile):
             for x in proclist:
                 outpit.write(r'replace PROCAT = "' + proclist[0] + r'" ' + 'if PX_DESC == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if PROCAT == ""' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Procedures.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -195,6 +199,9 @@ def readmit(argfile):
     outpit = open(argfile, 'w')
     outpit.write(
         r'import delimited ".\Readmit.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
+    outpit.write(r'save ".\Imported\Readmit.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
 
 
 def encounter(argfile):
@@ -203,6 +210,9 @@ def encounter(argfile):
     outpit = open(argfile, 'w')
     outpit.write(
         r'import delimited ".\Encounters.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
+    outpit.write('save ".\Imported\Encounters.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
 
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
@@ -224,10 +234,10 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
         os.mkdir('./PHARMA')
         pharmacy(pharmfile)
     if pathlib.Path('./PROCEDURES').exists():
-        pharmacy(pharmfile)
+        procedure(procedfile)
     else:
         os.mkdir('./PROCEDURES')
-        pharmacy(pharmfile)
+        procedure(procedfile)
     procedure(procedfile)
     readmit(readmitfile)
     encounter(encounterfile)
@@ -238,6 +248,10 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
     outpit.write('do ' + bmifile + '\r\n')
     outpit.write('do ' + demographicfile + '\r\n')
     outpit.write('do ' + diagnosesfile + '\r\n')
+    outpit.write('do ' + procedfile + '\r\n')
+    outpit.write('do ' + encounterfile + '\r\n')
+    outpit.write('do ' + readmitfile + '\r\n')
+    outpit.write('do ' + pharmfile + '\r\n')
     outpit.write('clear')
     outpit.write('\r\n')
 
