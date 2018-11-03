@@ -140,6 +140,9 @@ def diagnosis(argfile):
             for x in diaglist:
                 outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == "HX OF BLEEDING DISORDER"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == "HX OF CLOTTING DISORDER"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == "HX OF VTE"' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Diagnoses.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
@@ -200,6 +203,8 @@ def readmit(argfile):
     outpit.write(
         r'import delimited ".\Readmit.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
+    outpit.write('drop if READMIT_DAYS == ""' + '\r\n')
+    outpit.write('drop if READMIT_DAYS == "?"' + '\r\n')
     outpit.write(r'save ".\Imported\Readmit.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -252,6 +257,29 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
     outpit.write('do ' + encounterfile + '\r\n')
     outpit.write('do ' + readmitfile + '\r\n')
     outpit.write('do ' + pharmfile + '\r\n')
+
+r'use ".\Imported\Merged Diagnoses.dta"'
+
+r'merge m:m ADMTID using ".\Imported\BMI.dta", keep(master match) nogenerate'
+
+r'merge m:m ADMTID using ".\Imported\Demographics.dta", keep(master match) nogenerate'
+
+r'merge m:m ADMTID using ".\Imported\Encounters.dta", keep(master match) nogenerate'
+
+r'merge m:m ADMTID using ".\Imported\Labs.dta", keep(master match) nogenerate'
+
+r'merge m:m ADMTID using ".\Imported\Pharmacy.dta", keep(master match) nogenerate'
+
+r'merge m:m ADMTID using ".\Imported\Procedures.dta", keep(master match) nogenerate'
+
+r'merge m:m ADMTID using ".\Imported\Readmit.dta", keep(master match) nogenerate'
+
+r'sort ADMTID'
+
+r'drop if DIAGTM == ""'
+
+r'save ".\Imported\Messy Merge.dta", replace'
+
     outpit.write('clear')
     outpit.write('\r\n')
 
