@@ -220,6 +220,13 @@ def encounter(argfile):
     outpit.write('clear' + '\r\n')
 
 
+def pharmwide(argfile):
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write(r'use .\LAB_Split\LongPharma.dta' + '\r\n')
+
+
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
     bmi(bmifile)
@@ -258,27 +265,27 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
     outpit.write('do ' + readmitfile + '\r\n')
     outpit.write('do ' + pharmfile + '\r\n')
 
-r'use ".\Imported\Merged Diagnoses.dta"'
+    r'use ".\Imported\Merged Diagnoses.dta"'
 
-r'merge m:m ADMTID using ".\Imported\BMI.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\BMI.dta", keep(master match) nogenerate'
 
-r'merge m:m ADMTID using ".\Imported\Demographics.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\Demographics.dta", keep(master match) nogenerate'
 
-r'merge m:m ADMTID using ".\Imported\Encounters.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\Encounters.dta", keep(master match) nogenerate'
 
-r'merge m:m ADMTID using ".\Imported\Labs.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\Labs.dta", keep(master match) nogenerate'
 
-r'merge m:m ADMTID using ".\Imported\Pharmacy.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\Pharmacy.dta", keep(master match) nogenerate'
 
-r'merge m:m ADMTID using ".\Imported\Procedures.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\Procedures.dta", keep(master match) nogenerate'
 
-r'merge m:m ADMTID using ".\Imported\Readmit.dta", keep(master match) nogenerate'
+    r'merge m:m ADMTID using ".\Imported\Readmit.dta", keep(master match) nogenerate'
 
-r'sort ADMTID'
+    r'sort ADMTID'
 
-r'drop if DIAGTM == ""'
+    r'drop if DIAGTM == ""'
 
-r'save ".\Imported\Messy Merge.dta", replace'
+    r'save ".\Imported\Messy Merge.dta", replace'
 
     outpit.write('clear')
     outpit.write('\r\n')
