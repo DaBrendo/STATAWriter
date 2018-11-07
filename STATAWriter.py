@@ -236,6 +236,7 @@ def pharmwide(argfile):
                 outpit.write('replace MEDDATE = "' + str(x) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(x) + '_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
             outpit.write('sort ADMITID MEDDATE' + '\r\n')
         outpit.write('sort ADMITID MEDDATE' + '\r\n')
+    outpit.write('save ".\Merge\WidePharma.dta", replace' + '\r\n')
 
 
 def diagnosiswide(argfile):
@@ -247,8 +248,8 @@ def diagnosiswide(argfile):
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
     outpit.write('replace DIAGTYPE = "ORIG1" if DIAGTYPE == "ORIG"' + '\r\n')
-    outpit.write('replace DIAGTYPE = "FOLLOWUP1_1" if MEDDATE == "FOLLLOWUP"' + '\r\n')
-    outpit.write('replace DIAGTYPE = "FOLLOWUP2_1" if MEDDATE == "FOLLOWUP2"' + '\r\n')
+    outpit.write('replace DIAGTYPE = "FOLLOWUP1_1" if DIAGTYPE == "FOLLLOWUP"' + '\r\n')
+    outpit.write('replace DIAGTYPE = "FOLLOWUP2_1" if DIAGTYPE == "FOLLOWUP2"' + '\r\n')
     for z in range(2):
         for y in range(1, 10):
             outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
@@ -262,6 +263,7 @@ def diagnosiswide(argfile):
             outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
             outpit.write('replace DIAGTYPE = "FOLLOWUP2_' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP2_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
         outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
+    outpit.write('save ".\Merge\WideDiagnosis.dta", replace' + '\r\n')
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
