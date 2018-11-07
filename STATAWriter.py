@@ -96,7 +96,7 @@ def demographic(argfile):
     for file in os.listdir((os.curdir + r'/RACE')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
-            with open((os.curdir + r'/Race' + r'/' + filename), 'r') as csv_file:
+            with open((os.curdir + r'/DEMOGRAPHICS' + r'/' + filename), 'r') as csv_file:
                 readin = list(csv.reader(csv_file, delimiter=','))
             racelist = [item for sublist in readin for item in sublist]
             racelist = [x.upper() for x in racelist]
@@ -142,7 +142,7 @@ def diagnosis(argfile):
     for file in os.listdir((os.curdir + r'/DIAGNOSES')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
-            with open((os.curdir + r'/Diagnoses' + r'/' + filename), 'r') as csv_file:
+            with open((os.curdir + r'/DIAGNOSES' + r'/' + filename), 'r') as csv_file:
                 readin = list(csv.reader(csv_file, delimiter=','))
             diaglist = [item for sublist in readin for item in sublist]
             for x in diaglist:
@@ -165,10 +165,10 @@ def pharmacy(argfile):
     outpit.write(r'drop ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
     outpit.write(r'replace MED = upper(MED)' + '\r\n')
     outpit.write(r'gen MEDCAT = ""' + '\r\n')
-    for file in os.listdir((os.curdir + r'/Pharma')):
+    for file in os.listdir((os.curdir + r'/PHARMACY')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
-            with open((os.curdir + r'/PHARMA' + r'/' + filename), 'r') as csv_file:
+            with open((os.curdir + r'/PHARMACY' + r'/' + filename), 'r') as csv_file:
                 readin = list(csv.reader(csv_file, delimiter=','))
             medlist = [item for sublist in readin for item in sublist]
             medlist = [x.upper() for x in medlist]
@@ -283,12 +283,12 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
     else:
         os.mkdir('./RACE')
         demographic(demographicfile)
-    if pathlib.Path('./DIAGNOSIS').exists():
+    if pathlib.Path('./DIAGNOSES').exists():
         diagnosis(diagnosesfile)
     else:
         os.mkdir('./DIAGNOSIS')
         diagnosis(diagnosesfile)
-    if pathlib.Path('./PHARMA').exists():
+    if pathlib.Path('./PHARMACY').exists():
         pharmacy(pharmfile)
     else:
         os.mkdir('./PHARMA')
@@ -344,5 +344,5 @@ column = ['1:3', '9:10', '14:14']
 
 mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterFile.do', 'MainLoad.do')
 
-pharmwide('pharmwidefile.do')
-diagnosiswide('diagwidefile.do')
+pharmwide('PharmWideFix.do')
+diagnosiswide('DiagWideFix.do')
