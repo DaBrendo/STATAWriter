@@ -109,6 +109,15 @@ def demographic(argfile):
             outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2 == "' + r'?' + '"' + '\r\n')
             outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1 == "' + r'" & RACE2FIX == "' + racelist[0] + '"' + '\r\n')
             outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2 == "' + '"' + '\r\n')
+    for file in os.listdir((os.curdir + r'/RACE')):
+        filename = os.fsdecode(file)
+        if filename.endswith(".csv"):
+            with open((os.curdir + r'/Race' + r'/' + filename), 'r') as csv_file:
+                readin = list(csv.reader(csv_file, delimiter=','))
+            racelist = [item for sublist in readin for item in sublist]
+            racelist = [x.upper() for x in racelist if x != "OTHER"]
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "' + racelist[0] + r'" & RACE2FIX == "OTHER"' + '\r\n')
+            outpit.write(r'replace RACE = "' + racelist[0] + r'" ' + 'if RACE1FIX == "OTHER" & RACE2FIX == "' + racelist[0] + r'"' + '\r\n')
     outpit.write(r'replace RACE = "MULTIRACIAL" if RACE == ""' + '\r\n')
     outpit.write(r'drop RACE1FIX' + '\r\n')
     outpit.write(r'drop RACE2FIX' + '\r\n')
@@ -136,13 +145,12 @@ def diagnosis(argfile):
             with open((os.curdir + r'/Diagnoses' + r'/' + filename), 'r') as csv_file:
                 readin = list(csv.reader(csv_file, delimiter=','))
             diaglist = [item for sublist in readin for item in sublist]
-            diaglist = [x.upper() for x in diaglist]
             for x in diaglist:
                 outpit.write(r'replace DIAGCAT = "' + diaglist[0] + r'" ' + 'if DXDESC == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == ""' + '\r\n')
-    outpit.write(r'drop if DIAGCAT == "HX OF BLEEDING DISORDER"' + '\r\n')
-    outpit.write(r'drop if DIAGCAT == "HX OF CLOTTING DISORDER"' + '\r\n')
-    outpit.write(r'drop if DIAGCAT == "HX OF VTE"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == "BLEED DISORDER"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == "CLOT DISORDER"' + '\r\n')
+    outpit.write(r'drop if DIAGCAT == "PRIOR VTE"' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Diagnoses.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
@@ -229,9 +237,9 @@ def pharmwide(argfile):
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('sort ADMITID MEDDATE' + '\r\n')
     for z in range(2):
-        for x in range(1, 10):
+        for x in range(41):
             outpit.write('replace MEDDATE = "' + str(x) + '_' + str(x) + '" if MEDDATE == "' + str(x) + '"' + '\r\n')
-            for y in range(1, 10):
+            for y in range(1, 5):
                 outpit.write('sort ADMITID MEDDATE' + '\r\n')
                 outpit.write('replace MEDDATE = "' + str(x) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(x) + '_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
             outpit.write('sort ADMITID MEDDATE' + '\r\n')
@@ -246,6 +254,7 @@ def diagnosiswide(argfile):
     outpit.write(r'use .\Merge\LongDiagnosis.dta' + '\r\n')
     outpit.write(r'drop if DIAGTYPE == ""' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
+    outpit.write('drop DIAGNUM' + '\r\n')
     outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
     outpit.write('replace DIAGTYPE = "ORIG1" if DIAGTYPE == "ORIG"' + '\r\n')
     outpit.write('replace DIAGTYPE = "FOLLOWUP1_1" if DIAGTYPE == "FOLLLOWUP"' + '\r\n')
@@ -264,6 +273,7 @@ def diagnosiswide(argfile):
             outpit.write('replace DIAGTYPE = "FOLLOWUP2_' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP2_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
         outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
     outpit.write('save ".\Merge\WideDiagnosis.dta", replace' + '\r\n')
+
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
