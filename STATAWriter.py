@@ -275,6 +275,12 @@ def diagnosiswide(argfile):
     outpit.write('save ".\Merge\WideDiagnosis.dta", replace' + '\r\n')
 
 
+def labswide(argfile):
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+
+
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
     labs(labfile, lablength, labsplitlen, labcolumn)
     bmi(bmifile)
