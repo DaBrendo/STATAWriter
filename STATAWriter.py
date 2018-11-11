@@ -279,6 +279,62 @@ def labswide(argfile):
     if os.path.exists(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
+    outpit.write(r'use .\Merge\LongLabs.dta' + '\r\n')
+    outpit.write('gen GFR = ""')
+    outpit.write('gen CREAT = ""')
+    outpit.write('replace LABCAT = "CLEAR" if strpos(PROCEDURE, "CLEAR")')
+    outpit.write('replace LABCAT = "BUN" if strpos(PROCEDURE, "BUN")')
+    outpit.write('replace LABCAT = "CREAT" if strpos(PROCEDURE, "CREAT")')
+    outpit.write('drop if RESULTS_STR == "Unable to Calculate"')
+    outpit.write('drop if RESULTS_STR == "Unable to calculate"')
+    outpit.write('drop if RESULTS_STR == "eGFR COMMENT"')
+    outpit.write('drop if strpos(PROCEDURE, "KINASE")')
+
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "> 60" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == ">60" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "> GT60" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "> 90" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == ">  90" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "> 59" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "GREATER THAN 60" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "> 60.0" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == "> 60.00" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == ">60.00" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_STR == ">60.0" & LABCAT == "GFR"'
+    outpit.write('replace GFR = "<60" if RESULTS_STR == "LESS THAN 15" & LABCAT == "GFR"'
+    outpit.write('replace GFR = "<60" if RESULTS_STR == "< 10" & LABCAT == "GFR"'
+    outpit.write('replace GFR = "<60" if RESULTS_STR == "<0.60" & LABCAT == "GFR"'
+    outpit.write('replace GFR = ">60" if RESULTS_NUM > 60 & LABCAT == "GFR"'
+    outpit.write('replace GFR = "<60" if RESULTS_NUM < 60 & LABCAT == "GFR"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "LESS THAN 13.0" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 0.1" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 0.15" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 0.2" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 0.3" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 0.45" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 0.5" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 1.0" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 13.0" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 20" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 5.0" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "< 9.1" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.1" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.15" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.20" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.30" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.4" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.6" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<13.00" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<16.2" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<2.2" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<20" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<30" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_STR == "<0.60" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = ">40" if RESULTS_STR == "> 1000" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = ">40" if RESULTS_STR == "> 14000" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = ">40" if RESULTS_STR == ">14000" & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = "<40" if RESULTS_NUM < 40 & LABCAT == "CREAT"'
+    outpit.write('replace CREAT = ">40" if RESULTS_NUM > 40 & LABCAT == "CREAT"'
 
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
