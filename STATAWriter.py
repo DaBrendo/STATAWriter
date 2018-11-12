@@ -57,10 +57,12 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                     readin = list(csv.reader(csv_file, delimiter=','))
                 lablist = [item for sublist in readin for item in sublist]
                 lablist = [x.upper() for x in lablist]
+                outpit.write('gen ' + lablist[0] + ' = ""' + '\r\n')
                 for z in lablist:
-                    outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if strpos(PROCEDURE, ' + '"' + z + r'")' + '\r\n')
+                    outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if PROCEDURE == ' + '"' + z + r'"' + '\r\n')
         outpit.write(r'drop if LABCAT == ""' + '\r\n')
         outpit.write('duplicates drop' + '\r\n')
+        outpit.write(r'merge m:1 ADMTID using ".\Dictionaries\ID.dta", keep(using match) nogenerate' + '\r\n')
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
 
@@ -288,8 +290,7 @@ def labswide(argfile):
             lablist = [item for sublist in readin for item in sublist]
             lablist = [x.upper() for x in lablist]
             for x in lablist:
-                outpit.write('gen ' + lablist[0] + ' = ""')
-                outpit.write('replace ' + lablist[0] + ' = "' + lablist[1] + '" if RESULTS_STR == "' + str(x) + '" & LABCAT == "' + lablist[0] + '"')
+                outpit.write('replace ' + lablist[0] + ' = "' + lablist[1] + '" if RESULTS_STR == "' + str(x) + '" & LABCAT == "' + lablist[0] + '"' + '\r\n')
 
 
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
@@ -363,3 +364,4 @@ mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoa
 
 pharmwide('PharmWideFix.do')
 diagnosiswide('DiagWideFix.do')
+labswide('LabWideFix.do')
