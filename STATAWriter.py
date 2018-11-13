@@ -29,7 +29,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         for y in argcolumn:
             if x == 0:
                 outpit.write(
-                    r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + '' + ':' + str(((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
+                    r'import delimited ".\Raw\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + '' + ':' + str(((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
             else:
                 outpit.write(
                     r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + str(x + (x * argsplitlen)) + ':' + str(x + ((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
@@ -71,7 +71,7 @@ def bmi(argfile):
     if os.path.exists(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
-    outpit.write(r'import delimited ".\BMI.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+    outpit.write(r'import delimited ".\Raw\BMI.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('rename HEIGHT_CENTIMETERS HEIGHT' + '\r\n')
     outpit.write('rename WEIGHT_KILOGRAMS WEIGHT' + '\r\n')
     outpit.write('rename CALCULATED_BMI BMI' + '\r\n')
@@ -87,7 +87,7 @@ def demographic(argfile):
             os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
-        r'import delimited ".\Demographics.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        r'import delimited ".\Raw\Demographics.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'rename ESRI_GROUP ESRI' + '\r\n')
     outpit.write(r'drop ETHNICITY' + '\r\n')
     outpit.write(r'replace RACE1 = upper(RACE1)' + '\r\n')
@@ -137,7 +137,7 @@ def diagnosis(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
-        r'import delimited ".\Diagnoses.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        r'import delimited ".\Raw\Diagnoses.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'drop DX DX_CODETYPE ORIGDX' + '\r\n')
     outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
     outpit.write(r'gen DIAGCAT = ""' + '\r\n')
@@ -163,7 +163,7 @@ def pharmacy(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
-        r'import delimited ".\Pharmacy.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        r'import delimited ".\Raw\Pharmacy.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'drop ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
     outpit.write(r'replace MED = upper(MED)' + '\r\n')
     outpit.write(r'gen MEDCAT = ""' + '\r\n')
@@ -187,7 +187,7 @@ def procedure(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
-        r'import delimited ".\Procedures.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        r'import delimited ".\Raw\Procedures.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'drop REL_SERVICE_DAY ORIGPX PX' + '\r\n')
     outpit.write(r'replace PX_DESC = upper(PX_DESC)' + '\r\n')
     outpit.write(r'gen PROCAT = ""' + '\r\n')
@@ -211,7 +211,7 @@ def readmit(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
-        r'import delimited ".\Readmit.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        r'import delimited ".\Raw\Readmit.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('drop if READMIT_DAYS == ""' + '\r\n')
     outpit.write('drop if READMIT_DAYS == "?"' + '\r\n')
@@ -224,7 +224,7 @@ def encounter(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
     outpit.write(
-        r'import delimited ".\Encounters.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        r'import delimited ".\Raw\Encounters.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Encounters.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
