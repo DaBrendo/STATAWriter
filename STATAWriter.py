@@ -60,11 +60,22 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                 outpit.write('gen ' + lablist[0] + ' = ""' + '\r\n')
                 for z in lablist:
                     outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if PROCEDURE == ' + '"' + z + r'"' + '\r\n')
-        outpit.write(r'drop if LABCAT == ""' + '\r\n')
         outpit.write('duplicates drop' + '\r\n')
-        outpit.write(r'merge m:1 ADMTID using ".\Dictionaries\ID.dta", keep(using match) nogenerate' + '\r\n')
         outpit.write(r'save ".\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
+    for x in range(0, looplen):
+        outpit.write(r'use .\LAB_Split\Joined\Labs' + str(x + 1) + r'.dta"' + '\r\n')
+        for file in os.listdir((os.curdir + r'/LABSCRITERIA')):
+            filename = os.fsdecode(file)
+            if filename.endswith(".csv"):
+                with open((os.curdir + r'/LABSCRITERIA' + r'/' + filename), 'r') as csv_file:
+                    readin = list(csv.reader(csv_file, delimiter=','))
+                lablist = [item for sublist in readin for item in sublist]
+                lablist = [x.upper() for x in lablist]
+                for y in lablist:
+                    outpit.write('replace ' + lablist[0] + ' = "' + lablist[1] + '" if RESULTS_STR == "' + str(
+                        y) + '" & LABCAT == "' + lablist[0] + '"' + '\r\n')
+        
 
 
 def bmi(argfile):
@@ -203,6 +214,7 @@ def procedure(argfile):
     outpit.write(r'drop if PROCAT == ""' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Imported\Procedures.dta", replace' + '\r\n')
+    outpit.write('comp' + '\r\n')
     outpit.write('clear' + '\r\n')
 
 
