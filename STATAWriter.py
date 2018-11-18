@@ -32,14 +32,14 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                     r'import delimited ".\Raw\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + '' + ':' + str(((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
             else:
                 outpit.write(
-                    r'import delimited ".\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + str(x + (x * argsplitlen)) + ':' + str(x + ((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
-            outpit.write(r'save ".\LAB_Split\Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + r'.dta", replace' + '\r\n')
+                    r'import delimited ".\Raw\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + str(x + (x * argsplitlen)) + ':' + str(x + ((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
+            outpit.write(r'save ".\Import\Labs\Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + r'.dta", replace' + '\r\n')
             outpit.write('clear')
             outpit.write('\r\n')
-        outpit.write('use .\LAB_Split\Labs' + str(x + 1) + 'A' + '.dta' + '\r\n')
+        outpit.write('use .\Import\Labs\Labs' + str(x + 1) + 'A' + '.dta' + '\r\n')
         for y in argcolumn:
             if argcolumn.index(y) > 0:
-                outpit.write('merge 1:1 _n using .\Lab_Split\Labs' + str(x + 1) + string.ascii_uppercase[
+                outpit.write('merge 1:1 _n using .\Import\Labs\Labs' + str(x + 1) + string.ascii_uppercase[
                     argcolumn.index(y)] + '.dta, nogenerate')
                 outpit.write('\r\n')
         outpit.write('destring RESULT_ANSWER_TEXT, generate(RESULTS_NUM) force' + '\r\n')
@@ -48,6 +48,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('order RESULTS_STR, after(RESULTS_NUM)' + '\r\n')
         outpit.write('replace LOINC_CODE = "" if LOINC_CODE == "?"' + '\r\n')
         outpit.write(r'gen LABCAT = ""' + '\r\n')
+        outpit.write(r'rename PROC_NAME PROCEDURE' + '\r\n')
         outpit.write(r'replace PROCEDURE = upper(PROCEDURE)' + '\r\n')
         for file in os.listdir((os.curdir + r'/LABS')):
             filename = os.fsdecode(file)
@@ -63,7 +64,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write(r'save ".\Import\Labs\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
     for x in range(0, looplen):
-        outpit.write(r'use .\Import\Labs\Labs' + str(x + 1) + r'.dta"' + '\r\n')
+        outpit.write(r'use ".\Import\Labs\Labs' + str(x + 1) + r'.dta"' + '\r\n')
         for file in os.listdir((os.curdir + r'/LABSCRITERIA')):
             filename = os.fsdecode(file)
             if filename.endswith(".csv"):
@@ -79,7 +80,8 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('rename PROCEDURE LABDES' + '\r\n')
         outpit.write('rename RESULTS_NUM LABNUM' + '\r\n')
         outpit.write('rename RESULTS_STR LABSTR' + '\r\n')
-        outpit.write(r'save .\clean\Labs\Labs' + str(x + 1) + r'.dta"' + '\r\n')
+        outpit.write(r'save ".\clean\Labs\Labs' + str(x + 1) + r'.dta"' + '\r\n')
+        outpit.write(r'clear' + '\r\n')
 
 
 def bmi(argfile):
