@@ -177,7 +177,6 @@ def diagnosis(argfile):
     outpit.write(r'drop if DIAGCAT == "PRIOR VTE"' + '\r\n')
     outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
-    outpit.write('rename CATAGORY DIAGTYPE' + '\r\n')
     outpit.write('rename DXSEQ DIAGNUM' + '\r\n')
     outpit.write('rename DXDESC DIAGDES' + '\r\n')
     outpit.write('drop DIAG_CYCLE_CODE' + '\r\n')
@@ -194,6 +193,7 @@ def pharmacy(argfile):
     outpit.write('save ".\Import\Pharmacy.dta", replace' + '\r\n')
     outpit.write(r'drop ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
     outpit.write('rename REL_ADMIN_DATE MEDDATE' + '\r\n')
+    outpit.write('drop MEDTYPE' + '\r\n')
     outpit.write('rename MED MEDTYPE' + '\r\n')
     outpit.write(r'replace MEDTYPE = upper(MEDTYPE)' + '\r\n')
     outpit.write('rename ROUTE MEDROUTE' + '\r\n')
@@ -207,18 +207,19 @@ def pharmacy(argfile):
             medlist = [item for sublist in readin for item in sublist]
             medlist = [x.upper() for x in medlist]
             for x in medlist:
-                outpit.write(r'replace MEDCAT = "' + medlist[0] + r'" ' + 'if MED == "' + x + r'"' + '\r\n')
+                outpit.write(r'replace MEDCAT = "' + medlist[0] + r'" ' + 'if MEDTYPE == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if MEDCAT == ""' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Clean\Pharmacy.dta", replace' + '\r\n')
     outpit.write(r'drop if MEDDATE == ""' + '\r\n')
+    outpit.write(r'drop if strpos(MEDDATE, "-")' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('sort ADMITID MEDDATE' + '\r\n')
-    for z in range(2):
-        for x in range(41):
-            outpit.write('replace MEDDATE = "' + str(x) + '_' + str(x) + '" if MEDDATE == "' + str(x) + '"' + '\r\n')
-            for y in range(1, 5):
+    for z in range(3):
+        for x in range(125):
+            outpit.write('replace MEDDATE = "' + str(x) + '_0" if MEDDATE == "' + str(x) + '"' + '\r\n')
+            for y in range(9):
                 outpit.write('sort ADMITID MEDDATE' + '\r\n')
                 outpit.write('replace MEDDATE = "' + str(x) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(x) + '_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
             outpit.write('sort ADMITID MEDDATE' + '\r\n')
@@ -268,6 +269,7 @@ def readmit(argfile):
     outpit.write('drop if READMIT_DAYS == ""' + '\r\n')
     outpit.write('drop if READMIT_DAYS == "?"' + '\r\n')
     outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('rename ADMIT_YEAR ADMITYR' + '\r\n')
     outpit.write(r'save ".\Clean\Readmit.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -280,28 +282,20 @@ def encounter(argfile):
         r'import delimited ".\Raw\Encounters.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('save ".\Import\Encounters.dta", replace' + '\r\n')
     outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('drop ENCTYPE' + '\r\n')
+    outpit.write('drop PAT_ZIP_MASKED' + '\r\n')
+    outpit.write('drop DRG' + '\r\n')
+    outpit.write('drop DRG_TYPE' + '\r\n')
+    outpit.write('drop APRDRG' + '\r\n')
+    outpit.write('drop HCA_ADM_CLASS' + '\r\n')
+    outpit.write('rename HCA_DISCH_DISPO DCHARGECODE' + '\r\n')
+    outpit.write('rename HCA_DISCH_DISPO_DESC DCHARGEDES' + '\r\n')
+    outpit.write('rename HCA_ADM_SRC ADMITSOURCE' + '\r\n')
+    outpit.write('rename AGEYRS AGE' + '\r\n')
+    outpit.write('rename REL_DISCHARGE_DAY DCHARGEDAY' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Clean\Encounters.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
-
-
-def pharmwide(argfile):
-    if os.path.exists(argfile):
-        os.remove(argfile)
-    outpit = open(argfile, 'w')
-    outpit.write(r'use .\Merge\LongPharma.dta' + '\r\n')
-    outpit.write(r'drop if MEDDATE == ""' + '\r\n')
-    outpit.write('duplicates drop' + '\r\n')
-    outpit.write('sort ADMITID MEDDATE' + '\r\n')
-    for z in range(2):
-        for x in range(41):
-            outpit.write('replace MEDDATE = "' + str(x) + '_' + str(x) + '" if MEDDATE == "' + str(x) + '"' + '\r\n')
-            for y in range(1, 5):
-                outpit.write('sort ADMITID MEDDATE' + '\r\n')
-                outpit.write('replace MEDDATE = "' + str(x) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(x) + '_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
-            outpit.write('sort ADMITID MEDDATE' + '\r\n')
-        outpit.write('sort ADMITID MEDDATE' + '\r\n')
-    outpit.write('save ".\Merge\WidePharma.dta", replace' + '\r\n')
 
 
 def diagnosiswide(argfile):
@@ -416,7 +410,3 @@ observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
 mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterFile.do', 'MainLoad.do')
-
-pharmwide('PharmWideFix.do')
-diagnosiswide('DiagWideFix.do')
-labswide('LabWideFix.do')
