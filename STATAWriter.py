@@ -81,6 +81,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('rename RESULTS_NUM LABNUM' + '\r\n')
         outpit.write('rename RESULTS_STR LABSTR' + '\r\n')
         outpit.write(r'save ".\Merge\Labs\Labs' + str(x + 1) + r'.dta"' + '\r\n')
+        outpit.write('clear' + '\r\n')
 
 
 def bmi(argfile):
@@ -152,17 +153,26 @@ def demographic(argfile):
     outpit.write('clear' + '\r\n')
 
 
-def diagnosis(argfile):
+def diagnosis(argfile, typer="ORIG"):
     if os.path.exists(argfile):
         os.remove(argfile)
     outpit = open(argfile, 'w')
-    outpit.write(
-        r'import delimited ".\Raw\Diagnoses.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
-    outpit.write('save ".\Import\Diagnoses.dta", replace' + '\r\n')
+    if typer == "ORIG":
+        outpit.write(
+            r'import delimited ".\Raw\Diagnoses.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        outpit.write('save ".\Import\Diagnoses.dta", replace' + '\r\n')
+    elif typer == "FOLLOW":
+        outpit.write(
+            r'import delimited ".\Raw\Diagnoses_Followup.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
+        outpit.write('save ".\Import\Diagnoses_Followup.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write(r'drop DX DX_CODETYPE ORIGDX' + '\r\n')
     outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
     outpit.write(r'gen DIAGCAT = ""' + '\r\n')
+    if typer == "ORIG":
+        outpit.write(r'gen DIAGTYPE = "ORIG"' + '\r\n')
+    if typer == "FOLLOW":
+        outpit.write(r'gen DIAGTYPE = "FOLLOWUP"' + '\r\n')
     for file in os.listdir((os.curdir + r'/DIAGNOSES')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
@@ -179,11 +189,13 @@ def diagnosis(argfile):
     outpit.write('rename DXSEQ DIAGNUM' + '\r\n')
     outpit.write('rename DXDESC DIAGDES' + '\r\n')
     outpit.write('drop DIAG_CYCLE_CODE' + '\r\n')
-    outpit.write('save ".\Clean\Diagnoses.dta", replace' + '\r\n')
-    outpit.write(r'drop if DIAGTYPE == ""' + '\r\n')
+    if typer == "ORIG":
+        outpit.write('save ".\Clean\Diagnoses.dta", replace' + '\r\n')
+    elif typer == "FOLLOW":
+        outpit.write('save ".\Clean\Diagnoses_Followup.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('drop DIAGNUM' + '\r\n')
-    outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
+    outpit.write('sort ADMITID DIAGCAT' + '\r\n')
     outpit.write('replace DIAGTYPE = "ORIG1" if DIAGTYPE == "ORIG"' + '\r\n')
     outpit.write('replace DIAGTYPE = "FOLLOWUP1_1" if DIAGTYPE == "FOLLLOWUP"' + '\r\n')
     outpit.write('replace DIAGTYPE = "FOLLOWUP2_1" if DIAGTYPE == "FOLLOWUP2"' + '\r\n')
@@ -200,7 +212,10 @@ def diagnosis(argfile):
             outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
             outpit.write('replace DIAGTYPE = "FOLLOWUP2_' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP2_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
         outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
-    outpit.write('save ".\Merge\Diagnosis.dta", replace' + '\r\n')
+    if typer == "ORIG":
+        outpit.write('save ".\Merge\Diagnosis.dta", replace' + '\r\n')
+    elif typer == "FOLLOW":
+        outpit.write('save ".\Merge\Diagnosis_Followup.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
 
@@ -320,7 +335,7 @@ def encounter(argfile):
     outpit.write('clear' + '\r\n')
 
 
-def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile):
+def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile, diagnoses2file):
     if pathlib.Path('./PROCEDURES').exists():
         procedure(procedfile)
     else:
@@ -335,9 +350,11 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
         demographic(demographicfile)
     if pathlib.Path('./DIAGNOSES').exists():
         diagnosis(diagnosesfile)
+        diagnosis(diagnoses2file, typer="FOLLOW")
     else:
         os.mkdir('./DIAGNOSIS')
         diagnosis(diagnosesfile)
+        diagnosis(diagnoses2file, typer="FOLLOW")
     if pathlib.Path('./PHARMACY').exists():
         pharmacy(pharmfile)
     else:
@@ -352,6 +369,7 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
     outpit.write('do ' + bmifile + '\r\n')
     outpit.write('do ' + demographicfile + '\r\n')
     outpit.write('do ' + diagnosesfile + '\r\n')
+    outpit.write('do ' + diagnoses2file + '\r\n')
     outpit.write('do ' + procedfile + '\r\n')
     outpit.write('do ' + encounterfile + '\r\n')
     outpit.write('do ' + readmitfile + '\r\n')
@@ -362,4 +380,5 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
 observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
-mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosticLoad.do', 'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterFile.do', 'MainLoad.do')
+mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosisLoad.do',
+         'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterFile.do', 'MainLoad.do', 'DiagnosisFollowLoad.do')
