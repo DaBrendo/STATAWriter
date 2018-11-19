@@ -80,7 +80,7 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
         outpit.write('rename PROCEDURE LABDES' + '\r\n')
         outpit.write('rename RESULTS_NUM LABNUM' + '\r\n')
         outpit.write('rename RESULTS_STR LABSTR' + '\r\n')
-        outpit.write(r'save ".\Merge\Labs\Labs' + str(x + 1) + r'.dta"' + '\r\n')
+        outpit.write(r'save ".\Merge\Labs\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
 
 
