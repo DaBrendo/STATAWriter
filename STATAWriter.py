@@ -197,21 +197,29 @@ def diagnosis(argfile, typer="ORIG"):
     outpit.write('drop DIAGNUM' + '\r\n')
     outpit.write('sort ADMITID DIAGCAT' + '\r\n')
     outpit.write('replace DIAGTYPE = "ORIG1" if DIAGTYPE == "ORIG"' + '\r\n')
-    outpit.write('replace DIAGTYPE = "FOLLOWUP1_1" if DIAGTYPE == "FOLLLOWUP"' + '\r\n')
-    outpit.write('replace DIAGTYPE = "FOLLOWUP2_1" if DIAGTYPE == "FOLLOWUP2"' + '\r\n')
-    for z in range(2):
+    outpit.write('replace DIAGTYPE = "FOLLOWUP1" if DIAGTYPE == "FOLLLOWUP"' + '\r\n')
+    if typer == "ORIG":
+        for z in range(2):
+            for y in range(1, 10):
+                outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
+                outpit.write('replace DIAGTYPE = "ORIG' + str((y + 1)) + '" if DIAGTYPE == "ORIG' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
+    elif typer == "FOLLOW":
+        for z in range(2):
+            for y in range(1, 10):
+                outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
+                outpit.write('replace DIAGTYPE = "FOLLOWUP' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
+    outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
+    outpit.write('reshape wide DIAGDES PADMIT DIAGCAT, i(ADMITID) j(DIAGTYPE) string' + '\r\n')
+    if typer == "ORIG":
         for y in range(1, 10):
-            outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
-            outpit.write('replace DIAGTYPE = "ORIG' + str((y + 1)) + '" if DIAGTYPE == "ORIG' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
-    for z in range(2):
+            outpit.write('rename DIAGDESORIG' + str(y) + ' ORIG' + str(y) + 'DIAGDES' + '\r\n')
+            outpit.write('rename PADMITORIG' + str(y) + ' ORIG' + str(y) + 'PADMIT' + '\r\n')
+            outpit.write('rename DIAGCATORIG' + str(y) + ' ORIG' + str(y) + 'DIAGCAT' + '\r\n')
+    elif typer == "FOLLOW":
         for y in range(1, 10):
-            outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
-            outpit.write('replace DIAGTYPE = "FOLLOWUP1_' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP1_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
-    for z in range(2):
-        for y in range(1, 10):
-            outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
-            outpit.write('replace DIAGTYPE = "FOLLOWUP2_' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP2_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
-        outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
+            outpit.write('rename DIAGDESFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'DIAGDES' + '\r\n')
+            outpit.write('rename PADMITFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'PADMIT' + '\r\n')
+            outpit.write('rename DIAGCATFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'DIAGCAT' + '\r\n')
     if typer == "ORIG":
         outpit.write('save ".\Merge\Diagnosis.dta", replace' + '\r\n')
     elif typer == "FOLLOW":
