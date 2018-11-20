@@ -34,6 +34,8 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                 outpit.write(
                     r'import delimited ".\Raw\Labs.txt", encoding(utf8) varnames(1) case(upper) colrange(' + y + ') rowrange(' + str(x + (x * argsplitlen)) + ':' + str(x + ((x + 1) * argsplitlen)) + ') stringcols(_all)' + '\r\n')
             outpit.write(r'save ".\Import\Labs\Labs' + str(x + 1) + string.ascii_uppercase[argcolumn.index(y)] + r'.dta", replace' + '\r\n')
+            outpit.write('clear' + '\r\n')
+        outpit.write('use .\Import\Labs\Labs' + str(x + 1) + 'A' + '.dta' + '\r\n')
         for y in argcolumn:
             if argcolumn.index(y) > 0:
                 outpit.write('merge 1:1 _n using .\Import\Labs\Labs' + str(x + 1) + string.ascii_uppercase[
@@ -176,9 +178,9 @@ def diagnosis(argfile, typer="ORIG"):
     outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
     outpit.write(r'gen DIAGCAT = ""' + '\r\n')
     if typer == "ORIG":
-        outpit.write(r'gen DIAGTYPE = "ORIG"' + '\r\n')
+        outpit.write(r'gen DIAGTYPE = "ORIG1"' + '\r\n')
     if typer == "FOLLOW":
-        outpit.write(r'gen DIAGTYPE = "FOLLOWUP"' + '\r\n')
+        outpit.write(r'gen DIAGTYPE = "FOLLOWUP1"' + '\r\n')
     for file in os.listdir((os.curdir + r'/DIAGNOSES')):
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
@@ -198,17 +200,16 @@ def diagnosis(argfile, typer="ORIG"):
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('drop DIAGNUM' + '\r\n')
     outpit.write('sort ADMITID DIAGCAT' + '\r\n')
-    outpit.write('replace DIAGTYPE = "ORIG1" if DIAGTYPE == "ORIG"' + '\r\n')
-    outpit.write('replace DIAGTYPE = "FOLLOWUP1" if DIAGTYPE == "FOLLOWUP"' + '\r\n')
+
     outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
     if typer == "ORIG":
-        for z in range(2):
+        for z in range(4):
             for y in range(1, 10):
                 outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
                 outpit.write('replace DIAGTYPE = "ORIG' + str((y + 1)) + '" if DIAGTYPE == "ORIG' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
                 outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
     elif typer == "FOLLOW":
-        for z in range(2):
+        for z in range(4):
             for y in range(1, 10):
                 outpit.write('sort ADMITID DIAGTYPE' + '\r\n')
                 outpit.write('replace DIAGTYPE = "FOLLOWUP' + str((y + 1)) + '" if DIAGTYPE == "FOLLOWUP' + str(y) + '" & ADMITID == ADMITID[_n - 1] & DIAGTYPE == DIAGTYPE[_n - 1]' + '\r\n')
@@ -265,13 +266,10 @@ def pharmacy(argfile):
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Clean\Pharmacy.dta", replace' + '\r\n')
     outpit.write('gen MEDNUM = "MED1"' + '\r\n')
-    outpit.write('sort ADMITID MEDNUM' + '\r\n')
-    for z in range(3):
-        for z in range(2):
-            for y in range(1, 10):
-                outpit.write('sort ADMITID MEDNUM' + '\r\n')
-                outpit.write('replace MEDNUM = "MED' + str((y + 1)) + '" if MEDNUM == "MED' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDNUM == MEDNUM[_n - 1]' + '\r\n')
-        outpit.write('sort ADMITID MEDNUM' + '\r\n')
+    outpit.write('sort ADMITID MEDDATE MEDNUM' + '\r\n')
+    for z in range(5):
+        for y in range(1, 100):
+            outpit.write('replace MEDNUM = "MED' + str((y + 1)) + '" if MEDNUM == "MED' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDNUM == MEDNUM[_n - 1]' + '\r\n')
     outpit.write('save ".\Merge\Pharmacy.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -371,6 +369,33 @@ def encounter(argfile):
     outpit.write('clear' + '\r\n')
 
 
+def medshort(argfile):
+    if os.path.exists(argfile):
+        os.remove(argfile)
+    outpit = open(argfile, 'w')
+    outpit.write('use ".\Clean\Pharmacy.dta"' + '\r\n')
+    outpit.write('gen MEDNUM = "MED1"' + '\r\n')
+    outpit.write('sort ADMITID MEDDATE MEDNUM' + '\r\n')
+    for z in range(3):
+        for x in range(125):
+            outpit.write('replace MEDDATE = "' + str(x) + '_0" if MEDDATE == "' + str(x) + '"' + '\r\n')
+            for y in range(9):
+                outpit.write('sort ADMITID MEDDATE' + '\r\n')
+                outpit.write(
+                    'replace MEDDATE = "' + str(x) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(x) + '_' + str(
+                        y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
+            outpit.write('sort ADMITID MEDDATE' + '\r\n')
+    for z in range(4):
+        for y in range(1, 10):
+            outpit.write('sort ADMITID MEDDATE' + '\r\n')
+            outpit.write('replace MEDDATE = "' + str(y) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
+            outpit.write('sort ADMITID MEDDATE' + '\r\n')
+    for z in range(5):
+        for y in range(1, 100):
+            outpit.write('replace MEDNUM = "MED' + str((y + 1)) + '" if MEDNUM == "MED' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDNUM == MEDNUM[_n - 1]' + '\r\n')
+    outpit.write('save ".\Merge\Pharmacy.dta", replace' + '\r\n')
+    outpit.write('clear' + '\r\n')
+
 def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfile, diagnosesfile, pharmfile, procedfile, readmitfile, encounterfile, mainfile, diagnoses2file):
     if pathlib.Path('./PROCEDURES').exists():
         procedure(procedfile)
@@ -418,3 +443,5 @@ column = ['1:3', '9:10', '14:14']
 
 mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosisLoad.do',
          'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterLoad.do', 'MainLoad.do', 'DiagnosisFollowLoad.do')
+
+medshort('MedShort.do')
