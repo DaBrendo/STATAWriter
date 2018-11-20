@@ -61,6 +61,9 @@ def labs(argfile, argobslen, argsplitlen, argcolumn):
                 for z in lablist:
                     outpit.write(r'replace LABCAT = "' + lablist[0] + r'" ' + 'if PROCEDURE == ' + '"' + z + r'"' + '\r\n')
         outpit.write('duplicates drop' + '\r\n')
+        outpit.write('rename ADMTID ADMITID' + '\r\n')
+        outpit.write('sort ADMITID' + '\r\n')
+        outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
         outpit.write(r'save ".\Clean\Labs\Labs' + str(x + 1) + r'.dta", replace' + '\r\n')
         outpit.write('clear' + '\r\n')
     for x in range(0, looplen):
@@ -90,14 +93,18 @@ def bmi(argfile):
     outpit = open(argfile, 'w')
     outpit.write(r'import delimited ".\Raw\BMI.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'save ".\Import\BMI.dta", replace' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
+    outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
     outpit.write('rename HEIGHT_CENTIMETERS HEIGHT' + '\r\n')
     outpit.write('rename WEIGHT_KILOGRAMS WEIGHT' + '\r\n')
     outpit.write('rename CALCULATED_BMI BMI' + '\r\n')
-    outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('destring WEIGHT, replace' + '\r\n')
     outpit.write('destring BMI, replace' + '\r\n')
-    outpit.write('duplicates drop' + '\r\n')
     outpit.write(r'save ".\Clean\BMI.dta", replace' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write('save ".\Merge\BMI.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
 
@@ -108,6 +115,10 @@ def demographic(argfile):
     outpit.write(
         r'import delimited ".\Raw\Demographics.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'save ".\Import\Demographics.dta", replace' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
+    outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
     outpit.write(r'rename ESRI_GROUP ESRI' + '\r\n')
     outpit.write(r'drop ETHNICITY' + '\r\n')
     outpit.write(r'replace RACE1 = upper(RACE1)' + '\r\n')
@@ -147,9 +158,10 @@ def demographic(argfile):
     outpit.write(r'drop RACE2' + '\r\n')
     outpit.write(r'drop if ESRI == ""' + '\r\n')
     outpit.write(r'drop if ESRI == "?"' + '\r\n')
-    outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Clean\Demographics.dta", replace' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write('save ".\Merge\Demographics.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
 
@@ -166,6 +178,9 @@ def diagnosis(argfile, typer="ORIG"):
             r'import delimited ".\Raw\Diagnoses_Followup.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
         outpit.write('save ".\Import\Diagnoses_Followup.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
+    outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
     outpit.write(r'drop DX DX_CODETYPE ORIGDX' + '\r\n')
     outpit.write(r'replace DXDESC = upper(DXDESC)' + '\r\n')
     outpit.write(r'gen DIAGCAT = ""' + '\r\n')
@@ -185,7 +200,6 @@ def diagnosis(argfile, typer="ORIG"):
     outpit.write(r'drop if DIAGCAT == "BLEED DISORDER"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == "CLOT DISORDER"' + '\r\n')
     outpit.write(r'drop if DIAGCAT == "PRIOR VTE"' + '\r\n')
-    outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('rename DXSEQ DIAGNUM' + '\r\n')
     outpit.write('rename DXDESC DIAGDES' + '\r\n')
     outpit.write('drop DIAG_CYCLE_CODE' + '\r\n')
@@ -197,7 +211,7 @@ def diagnosis(argfile, typer="ORIG"):
     outpit.write('drop DIAGNUM' + '\r\n')
     outpit.write('sort ADMITID DIAGCAT' + '\r\n')
     outpit.write('replace DIAGTYPE = "ORIG1" if DIAGTYPE == "ORIG"' + '\r\n')
-    outpit.write('replace DIAGTYPE = "FOLLOWUP1" if DIAGTYPE == "FOLLLOWUP"' + '\r\n')
+    outpit.write('replace DIAGTYPE = "FOLLOWUP1" if DIAGTYPE == "FOLLOWUP"' + '\r\n')
     if typer == "ORIG":
         for z in range(2):
             for y in range(1, 10):
@@ -212,14 +226,14 @@ def diagnosis(argfile, typer="ORIG"):
     outpit.write('reshape wide DIAGDES PADMIT DIAGCAT, i(ADMITID) j(DIAGTYPE) string' + '\r\n')
     if typer == "ORIG":
         for y in range(1, 10):
-            outpit.write('rename DIAGDESORIG' + str(y) + ' ORIG' + str(y) + 'DIAGDES' + '\r\n')
-            outpit.write('rename PADMITORIG' + str(y) + ' ORIG' + str(y) + 'PADMIT' + '\r\n')
-            outpit.write('rename DIAGCATORIG' + str(y) + ' ORIG' + str(y) + 'DIAGCAT' + '\r\n')
+            outpit.write('capture rename DIAGDESORIG' + str(y) + ' ORIG' + str(y) + 'DIAGDES' + '\r\n')
+            outpit.write('capture rename PADMITORIG' + str(y) + ' ORIG' + str(y) + 'PADMIT' + '\r\n')
+            outpit.write('capture rename DIAGCATORIG' + str(y) + ' ORIG' + str(y) + 'DIAGCAT' + '\r\n')
     elif typer == "FOLLOW":
         for y in range(1, 10):
-            outpit.write('rename DIAGDESFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'DIAGDES' + '\r\n')
-            outpit.write('rename PADMITFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'PADMIT' + '\r\n')
-            outpit.write('rename DIAGCATFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'DIAGCAT' + '\r\n')
+            outpit.write('capture rename DIAGDESFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'DIAGDES' + '\r\n')
+            outpit.write('capture rename PADMITFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'PADMIT' + '\r\n')
+            outpit.write('capture rename DIAGCATFOLLOWUP' + str(y) + ' FOLLOWUP' + str(y) + 'DIAGCAT' + '\r\n')
     if typer == "ORIG":
         outpit.write('save ".\Merge\Diagnosis.dta", replace' + '\r\n')
     elif typer == "FOLLOW":
@@ -235,6 +249,9 @@ def pharmacy(argfile):
         r'import delimited ".\Raw\Pharmacy.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('save ".\Import\Pharmacy.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
+    outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
     outpit.write(r'drop ADMIN_TIME PHRMMNEM GENERICPHRMMNEM THERCLSGRP GENNAMEGRP SPECNAMEGRP RX_NDC' + '\r\n')
     outpit.write('rename REL_ADMIN_DATE MEDDATE' + '\r\n')
     outpit.write('drop MEDTYPE' + '\r\n')
@@ -253,19 +270,16 @@ def pharmacy(argfile):
             for x in medlist:
                 outpit.write(r'replace MEDCAT = "' + medlist[0] + r'" ' + 'if MEDTYPE == "' + x + r'"' + '\r\n')
     outpit.write(r'drop if MEDCAT == ""' + '\r\n')
+    outpit.write('sort ADMITID MEDDATE' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('save ".\Clean\Pharmacy.dta", replace' + '\r\n')
-    outpit.write(r'drop if MEDDATE == ""' + '\r\n')
-    outpit.write('rename ADMTID ADMITID' + '\r\n')
-    outpit.write('sort ADMITID MEDDATE' + '\r\n')
+    outpit.write('gen MEDNUM = "MED1"' + '\r\n')
     for z in range(3):
-        for x in range(-25, 125):
-            outpit.write('replace MEDDATE = "' + str(x) + '_0" if MEDDATE == "' + str(x) + '"' + '\r\n')
-            for y in range(9):
-                outpit.write('sort ADMITID MEDDATE' + '\r\n')
-                outpit.write('replace MEDDATE = "' + str(x) + '_' + str((y + 1)) + '" if MEDDATE == "' + str(x) + '_' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDDATE == MEDDATE[_n - 1]' + '\r\n')
-            outpit.write('sort ADMITID MEDDATE' + '\r\n')
-        outpit.write('sort ADMITID MEDDATE' + '\r\n')
+        for z in range(2):
+            for y in range(1, 10):
+                outpit.write('sort ADMITID MEDNUM' + '\r\n')
+                outpit.write('replace MEDNUM = "MED' + str((y + 1)) + '" if MEDNUM == "MED' + str(y) + '" & ADMITID == ADMITID[_n - 1] & MEDNUM == MEDNUM[_n - 1]' + '\r\n')
+        outpit.write('sort ADMITID MEDNUM' + '\r\n')
     outpit.write('save ".\Merge\Pharmacy.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
@@ -278,6 +292,8 @@ def procedure(argfile):
         r'import delimited ".\Raw\Procedures.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write('save ".\Import\Procedures.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
+    outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
     outpit.write(r'drop REL_SERVICE_DAY ORIGPX PX' + '\r\n')
     outpit.write(r'replace PX_DESC = upper(PX_DESC)' + '\r\n')
     outpit.write(r'gen PROCAT = ""' + '\r\n')
@@ -295,7 +311,6 @@ def procedure(argfile):
     outpit.write('rename PX_DESC PROCDES' + '\r\n')
     outpit.write('rename PROCAT PROCCAT' + '\r\n')
     outpit.write('drop PX_CODETYPE' + '\r\n')
-    outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('save ".\Clean\Procedures.dta", replace' + '\r\n')
     outpit.write('contract ADMITID' + '\r\n')
     outpit.write('drop _freq' + '\r\n')
@@ -311,11 +326,28 @@ def readmit(argfile):
         r'import delimited ".\Raw\Readmit.txt", varnames(1) case(upper) encoding(utf8) stringcols(_all)' + '\r\n')
     outpit.write(r'save ".\Import\Readmit.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
+    outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
     outpit.write('drop if READMIT_DAYS == ""' + '\r\n')
     outpit.write('drop if READMIT_DAYS == "?"' + '\r\n')
-    outpit.write('rename ADMTID ADMITID' + '\r\n')
     outpit.write('rename ADMIT_YEAR ADMITYR' + '\r\n')
+    outpit.write('rename READMIT_DAYS READMIT' + '\r\n')
+    outpit.write('gen READMITNUM = "READMIT1"' + '\r\n')
+    outpit.write('drop COMPANY_CODE' + '\r\n')
+    outpit.write('sort ADMITID ADMITYR READMIT' + '\r\n')
+    outpit.write('duplicates drop' + '\r\n')
     outpit.write(r'save ".\Clean\Readmit.dta", replace' + '\r\n')
+    for z in range(5):
+        for y in range(1, 10):
+            outpit.write('sort ADMITID ADMITYR READMIT' + '\r\n')
+            outpit.write('replace READMITNUM = "READMIT' + str((y + 1)) + '" if READMITNUM == "READMIT' + str(
+                y) + '" & ADMITID == ADMITID[_n - 1] & READMITNUM == READMITNUM[_n - 1]' + '\r\n')
+    outpit.write('reshape wide ADMITYR READMIT, i(ADMITID) j(READMITNUM) string' + '\r\n')
+    for y in range(1, 10):
+        outpit.write('capture rename ADMITYRREADMIT' + str(y) + ' READMIT' + str(y) + 'YR' + '\r\n')
+        outpit.write('capture rename READMITREADMIT' + str(y) + ' READMIT' + str(y) + 'DAY' + '\r\n')
+    outpit.write(r'save ".\Merge\Readmit.dta", replace' + '\r\n')
     outpit.write('clear' + '\r\n')
 
 
@@ -328,10 +360,13 @@ def encounter(argfile):
     outpit.write('save ".\Import\Encounters.dta", replace' + '\r\n')
     outpit.write('duplicates drop' + '\r\n')
     outpit.write('rename ADMTID ADMITID' + '\r\n')
+    outpit.write('sort ADMITID' + '\r\n')
+    outpit.write(r'merge m:1 ADMITID using ".\Dictionary\ID.dta", keep(match) nogenerate' + '\r\n')
     outpit.write('drop ENCTYPE' + '\r\n')
     outpit.write('drop PAT_ZIP_MASKED' + '\r\n')
     outpit.write('drop DRG' + '\r\n')
     outpit.write('drop DRG_TYPE' + '\r\n')
+    outpit.write('drop if APRDRG == "?"' + '\r\n')
     outpit.write('drop APRDRG' + '\r\n')
     outpit.write('drop HCA_ADM_CLASS' + '\r\n')
     outpit.write('rename HCA_DISCH_DISPO DCHARGECODE' + '\r\n')
@@ -373,12 +408,12 @@ def mainload(labfile, lablength, labsplitlen, labcolumn, bmifile, demographicfil
     if os.path.exists(mainfile):
         os.remove(mainfile)
     outpit = open(mainfile, 'w')
+    outpit.write('do ' + procedfile + '\r\n')
     outpit.write('do ' + labfile + '\r\n')
     outpit.write('do ' + bmifile + '\r\n')
     outpit.write('do ' + demographicfile + '\r\n')
     outpit.write('do ' + diagnosesfile + '\r\n')
     outpit.write('do ' + diagnoses2file + '\r\n')
-    outpit.write('do ' + procedfile + '\r\n')
     outpit.write('do ' + encounterfile + '\r\n')
     outpit.write('do ' + readmitfile + '\r\n')
     outpit.write('do ' + pharmfile + '\r\n')
@@ -389,4 +424,4 @@ observlen = 18000000
 column = ['1:3', '9:10', '14:14']
 
 mainload('LabLoad.do', observlen, 5000000, column, 'BMILoad.do', 'DemographicLoad.do', 'DiagnosisLoad.do',
-         'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterFile.do', 'MainLoad.do', 'DiagnosisFollowLoad.do')
+         'PharmaLoad.do', 'ProcedureLoad.do', 'ReadmitLoad.do', 'EncounterLoad.do', 'MainLoad.do', 'DiagnosisFollowLoad.do')
